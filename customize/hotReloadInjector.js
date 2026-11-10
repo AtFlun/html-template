@@ -1,11 +1,17 @@
 import fs from 'fs';
 import path from 'path';
 
-const isProduction = fs.existsSync(path.join(process.cwd(), 'middleware.js')),
-	injectScript = html => {
-		if (isProduction) return html; // 生产模式(存在 middleware.js)不注入热重载脚本
-		if (/hot-reload-socket|socket\.io\.js/.test(html)) return html; // 已经注入过了
-		const socketScript = `
+const isProduction = fs.existsSync(path.join(process.cwd(), 'middleware.js'));
+/**
+ * 向 HTML 注入热重载脚本;生产模式或已注入时原样返回
+ * >查看定义:@see {@link injectScript}
+ * @param {string} html 原始 HTML
+ * @returns {string} 注入后的 HTML
+ */
+const injectScript = html => {
+    if (isProduction) return html; // 生产模式(存在 middleware.js)不注入热重载脚本
+    if (/hot-reload-socket|socket\.io\.js/.test(html)) return html; // 已经注入过了
+    const socketScript = `
         <script src="/socket.io/socket.io.js"></script>
         <script>
             (function() {
@@ -18,8 +24,8 @@ const isProduction = fs.existsSync(path.join(process.cwd(), 'middleware.js')),
         </script>
     `;
 
-		if (html.includes('</body>')) return html.replace('</body>', `${socketScript}</body>`);
-		return html + socketScript;
-	};
+    if (html.includes('</body>')) return html.replace('</body>', `${socketScript}</body>`);
+    return html + socketScript;
+};
 
 export { injectScript };

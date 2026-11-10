@@ -58,7 +58,6 @@ const writtenFilesToIgnore = [], userFeatures = {}, includedFiles = new Set(),
 
 	// 不安全常量
 	unsafeKeys = ['__proto__', 'constructor', 'prototype', 'then', 'toString', 'valueOf', 'Object', 'Function', 'Promise'],
-
 	/**
 	 * 重置正则表达式的lastIndex属性
 	 * @param {RegExp} regex - 需要重置的正则表达式
@@ -67,7 +66,6 @@ const writtenFilesToIgnore = [], userFeatures = {}, includedFiles = new Set(),
 	_resetRegex = regex => {
 		return regex.lastIndex = 0, regex;
 	},
-
 	/**
 	 * 检查路径是否安全(防止目录遍历攻击)
 	 * @param {string} requestedPath - 请求的路径
@@ -78,7 +76,6 @@ const writtenFilesToIgnore = [], userFeatures = {}, includedFiles = new Set(),
 		const resolvedPath = pRes(requestedPath);
 		return resolvedPath.startsWith(pRes(baseDir));
 	},
-
 	/**
 	 * 转义字符串中的正则表达式特殊字符
 	 * @param {string} string - 待转义字符串
@@ -87,7 +84,6 @@ const writtenFilesToIgnore = [], userFeatures = {}, includedFiles = new Set(),
 	_escapeRegExp = string => {
 		return string.replace(_resetRegex(specialCharsRegex), '\\$&');
 	},
-
 	/**
 	 * 安全地将值转换为字符串,处理 null、undefined 和对象
 	 * @param {any} value - 需要转换的值
@@ -104,7 +100,6 @@ const writtenFilesToIgnore = [], userFeatures = {}, includedFiles = new Set(),
 		}
 		return String(value);
 	},
-
 	/**
 	 * 解析并验证端口值
 	 * @param {string|number} portValue - 端口值
@@ -117,7 +112,6 @@ const writtenFilesToIgnore = [], userFeatures = {}, includedFiles = new Set(),
 		console.warn(`警告: ${source} "${portValue}" 无效,已启用默认端口:${defaultPort}`);
 		return defaultPort;
 	};
-
 /**
  * 统一服务器配置解析函数(与 dev-server.js 完全一致)
  *
@@ -157,6 +151,7 @@ const writtenFilesToIgnore = [], userFeatures = {}, includedFiles = new Set(),
  *    2. 函数参数 (options.httpsKey, options.httpsCert)
  *    3. 环境变量 (process.env.HTTPS_KEY, process.env.HTTPS_CERT)
  *    4. 若仍未提供,启动时抛出错误
+ * >查看定义:@see {@link parseServerConfig}
  */
 const parseServerConfig = (options = {}, defaults = {}) => {
 	let port, host, hotReload, account, httpsEnabled, httpsKeyPath, httpsCertPath;
@@ -233,9 +228,9 @@ const parseServerConfig = (options = {}, defaults = {}) => {
 
 	return { port, host, hotReload, account, httpsEnabled, httpsKeyPath, httpsCertPath };
 };
-
 /**
  * 生成页面URL(支持HTTP/HTTPS和自定义主机名)
+ * >查看定义:@see {@link generateUrls}
  * @param {string} page - 页面文件名
  * @param {number} port - 端口号
  * @param {boolean} useHttps - 是否使用HTTPS
@@ -248,7 +243,6 @@ const generateUrls = (page, port, useHttps, host) => {
 
 	return { url, encodedUrl: `${baseUrl}/${encodeURI(page)}`, needsEncoding };
 };
-
 /**
  * 动态识别入口文件(优先级策略)
  * 1. 查找包含\<!-- \@entry -->标记的文件
@@ -270,7 +264,6 @@ const findEntryFile = async cachedPages => {
 
 	return cachedPages.sort()[0]; // 否则按首字母排序(保底)
 },
-
 	// ==================== 2. 模板区块处理工具 ====================
 	/**
 	 * 解析模板内容并定位所有区块的起止位置(忽略嵌套标签)
@@ -291,8 +284,7 @@ const findEntryFile = async cachedPages => {
 
 			// 没有找到闭标签,跳过
 			if (closeStartIndex === -1) {
-				index = openEndIndex + 1;
-				continue;
+				index = openEndIndex + 1; continue;
 			}
 
 			// 直接记录当前区块,不检查嵌套情况
@@ -303,14 +295,12 @@ const findEntryFile = async cachedPages => {
 
 		return blocks;
 	},
-
 	/**
 	 * 清除模板中的所有区块标签残留
 	 * @param {string} html - 模板内容
 	 * @returns {string} 清理后的纯净HTML
 	 */
 	_cleanTemplateTags = html => html.replace(_resetRegex(templateTagRegex), '');
-
 // ==================== 3. 包含文件处理 ====================
 /**
  * 设置编译模式并重置文件依赖记录
@@ -321,14 +311,12 @@ const setCompilationMode = mode => {
 	isCompilationMode = mode;
 	if (mode) includedFiles.clear();
 };
-
 /**
  * 获取所有被包含的模板文件路径
  * >查看定义:@see {@link getIncludedFiles}
  * @returns {Set<string>} 包含文件路径集合
  */
 const getIncludedFiles = () => new Set(includedFiles);
-
 /**
  * 递归处理模板中的包含指令
  * >查看定义:@see {@link processIncludes}
@@ -392,7 +380,6 @@ const processIncludes = async (content, currentFile = '', inclusionStack = new S
 	parts.push(content.slice(0, lastIndex)); // 添加首部内容片段
 	return parts.reverse().join(''); 	     // 反转并拼接所有片段
 }
-
 // ==================== 4. 用户自定义功能系统 ====================
 /**
  * 运行时监控所有文件写入操作
@@ -444,7 +431,6 @@ const monitorFileWrites = () => {
 		ignoreTimers.clear(), writtenFilesToIgnore.length = 0;
 	};
 },
-
 	/**
 	* 异步安全加载模块(兼容 ESM 和 CJS)
 	* 优先使用 default 导出(ESM 默认导出 / CJS module.exports)
@@ -465,7 +451,6 @@ const monitorFileWrites = () => {
 			return console.error(`加载模块失败: ${modulePath}`, error.message), null;
 		}
 	};
-
 /**
  * 加载用户自定义功能(路由/函数/变量)
  * >查看定义:@see {@link loadUserFeatures}
@@ -524,7 +509,6 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 
 	return userFeatures;
 },
-
 	// ==================== 5. 模板功能处理系统 ====================
 	/**
 	 * 检查模板内容中是否还有未处理的标签
@@ -533,12 +517,8 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 	 */
 	_hasUnprocessedTags = content => {
 		const tagsToCheck = [forRegex, forKeyValueRegex, IfRegex, userFuncRegex, expressionRegex, objectPropertyRegex];
-
-		return tagsToCheck.some(regex => {
-			return _resetRegex(regex), regex.test(content);
-		});
+		return tagsToCheck.some(regex => { return _resetRegex(regex), regex.test(content); });
 	},
-
 	/**
 	 * 处理所有循环结构,包括简单循环和键值对循环
 	 * 支持特性:
@@ -608,7 +588,6 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 
 		return result;
 	},
-
 	/**
 	 * 处理条件判断结构,支持多分支条件判断
 	 * 语法支持:
@@ -649,7 +628,6 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 
 		return result;
 	},
-
 	/**
 	 * 执行用户自定义函数
 	 * @param {string} funcName - 函数名称
@@ -664,7 +642,6 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 			return console.error(`执行用户函数 ${funcName} 时出错:`, error.message), null;
 		}
 	},
-
 	/**
 	 * 处理用户自定义函数调用,支持多种参数类型和复杂表达式
 	 * 函数调用格式: {{user:functionName(arg1, arg2, ...)}}
@@ -720,7 +697,6 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 				}
 			});
 	},
-
 	/**
 	 * 根据点分隔的路径从对象中获取嵌套属性值
 	 * 支持多级属性访问,如: user.profile.name
@@ -737,7 +713,6 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 			return Object.hasOwnProperty.call(current, key) ? current[key] : undefined; // 检查属性是否存在
 		}, obj);
 	},
-
 	/**
 	 * 创建安全的沙箱环境用于表达式求值,防止恶意代码执行
 	 * 复制原始变量但阻止原型访问,确保安全性
@@ -765,7 +740,6 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 
 		return { ...safeVariables, ...safeFunctions };
 	},
-
 	/**
 	 * 表达式求值函数,在安全沙箱环境中执行JavaScript表达式
 	 * 使用vm模块创建安全上下文,避免使用eval
@@ -795,7 +769,6 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 			return console.error(`表达式求值失败: ${expr}`, error.message), null;
 		}
 	},
-
 	/**
 	 * 处理对象属性访问、简单变量替换和复杂表达式求值
 	 * 使用evaluateExpression函数在安全沙箱中执行表达式
@@ -819,7 +792,6 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 	_processVariablesAndExpressions = (content, variables) => {
 		let result = content;
 		result = result.replace(_resetRegex(quotedVarRegex), (_match, inner) => `{{${inner}}}`); // 处理带反引号变量
-
 		// 处理对象属性访问
 		result = result.replace(_resetRegex(objectPropertyRegex), (_match, path) => {
 			try {
@@ -829,7 +801,6 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 				return console.warn(`处理对象属性访问 ${path} 时出错:`, error.message), '';
 			}
 		});
-
 		// 处理简单变量替换
 		Object.entries(variables).forEach(([key, value]) => {
 			if (unsafeKeys.includes(key)) return;
@@ -840,7 +811,6 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 				return console.warn(`处理变量 ${key} 时出错:`, error.message), '';
 			}
 		});
-
 		// 处理复杂表达式求值
 		result = result.replace(_resetRegex(expressionRegex), (match, expression) => {
 			if (!expression.trim()) return '';			    // 跳过空表达式
@@ -863,10 +833,8 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 
 		return result;
 	},
-
 	// 模块处理函数数组(所有依赖函数已定义,顺序安全)
 	processingPhases = [_processLoops, _processConditionals, _processUserFunctions, _processVariablesAndExpressions],
-
 	/**
 	 * 迭代式模板处理器
 	 * 按数组顺序多次处理模板,直到没有变化或达到最大迭代次数
@@ -886,7 +854,6 @@ const loadUserFeatures = async (app = null, isCompileMode = false, forceReload =
 		if (iteration >= maxIterations) console.warn(`模板处理达到最大迭代次数(${maxIterations}),可能包含无限循环或复杂嵌套`);
 		return result;
 	};
-
 /**
  * 迭代式变量处理主入口函数;
  * 多次扫描模板内容,直到没有未处理的标签或达到最大迭代次数
@@ -899,7 +866,6 @@ const processVariables = (content, requestVariables = {}) => {
 	const allVariables = { ...userFeatures.variables, ...requestVariables };
 	return _processIteratively(content, allVariables); // 使用迭代式处理替代线性管道
 },
-
 	// ==================== 6. 模板结构验证 ====================
 	/**
 	 * 验证模板标签的完整性和嵌套结构
@@ -942,8 +908,7 @@ const processVariables = (content, requestVariables = {}) => {
 				const { B, C, endIndex, name } = parseTag(i, '开', line);
 				if (B) break;
 				if (C) {
-					i = endIndex;
-					continue;
+					i = endIndex; continue;
 				}
 				stack.push({ name, line }), i = endIndex;
 			}
@@ -952,8 +917,7 @@ const processVariables = (content, requestVariables = {}) => {
 				const { B, C, endIndex, name } = parseTag(i, '闭', line);
 				if (B) break;
 				if (C) {
-					i = endIndex;
-					continue;
+					i = endIndex; continue;
 				}
 
 				if (stack.length === 0) errors.push(`第 ${line} 行: 多余的闭标签 '${name}'`);
@@ -969,7 +933,6 @@ const processVariables = (content, requestVariables = {}) => {
 		stack.forEach(tag => { errors.push(`第 ${tag.line} 行: 未闭合的区块 '${tag.name}'`); });
 		return errors;
 	};
-
 // ==================== 7. 模板文件操作 ====================
 /**
  * 获取模板目录下所有可用的HTML文件路径(排除base.html)
@@ -997,7 +960,6 @@ const getAvailableTemplates = async () => {
 		console.error('操作失败:', error.message), process.exit(1);
 	}
 },
-
 	// ==================== 8. 模板渲染引擎核心 ====================
 	/**
 	 * 确保HTML文档类型声明位于文件开头
@@ -1007,7 +969,6 @@ const getAvailableTemplates = async () => {
 	_ensureDoctypeFirst = html => {
 		return html.trim().toLowerCase().startsWith('<!doctype') ? html : `<!DOCTYPE html>\n${html}`;
 	},
-
 	/**
 	 * 核心模板合成算法- 将页面模板内容合并到基础模板中
 	 * @param {string} baseContent - 基础模板
@@ -1036,7 +997,6 @@ const getAvailableTemplates = async () => {
 
 		return _ensureDoctypeFirst(_cleanTemplateTags(finalHtml));
 	};
-
 /**
  * 模板文件结构验证入口
  * >查看定义:@see {@link validateTemplateFile}
@@ -1054,7 +1014,6 @@ const validateTemplateFile = async (fileName, isDev = false) => {
 		else throw new Error(errorMsg);
 	}
 }
-
 /**
  * 模板渲染函数,处理模板继承关系
  * >查看定义:@see {@link renderTemplate}
@@ -1086,10 +1045,10 @@ const renderTemplate = async templateFile => {
 	return _renderTemplateContent(baseContent, remainingContent); // 执行模板合成
 }
 
-
 // ==================== 9. 模块功能导出 ====================
 export {
-	path, fsPromises, CWD, templatesDir, templatesAbsDir, staticDir, customizeDir, accountDir, writtenFilesToIgnore,
-	getAvailableTemplates, parseServerConfig, generateUrls, findEntryFile, validateTemplateFile, renderTemplate,
-	processIncludes, setCompilationMode, getIncludedFiles, processVariables, loadUserFeatures, monitorFileWrites
+	path, CWD, fsPromises, templatesDir, templatesAbsDir, staticDir, customizeDir, accountDir, writtenFilesToIgnore,
+	parseServerConfig, generateUrls, findEntryFile, setCompilationMode, getIncludedFiles, processIncludes,
+	monitorFileWrites, loadUserFeatures, processVariables, getAvailableTemplates, validateTemplateFile,
+	renderTemplate
 };

@@ -1,6 +1,9 @@
-// 自定义工具函数示例
-
-export default {
+/**
+ * 自定义工具函数实例集合
+ * >查看定义:@see {@link customFunctions}
+ * @returns {object} 含 functions 字段的配置对象
+ */
+const customFunctions = {
 	functions: {
 		// 简单计算器函数
 		add: (a, b) => {
@@ -46,3 +49,5 @@ export default {
 		}
 	}
 };
+
+export default customFunctions;

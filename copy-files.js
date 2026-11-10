@@ -1,7 +1,7 @@
+import chalk from 'chalk';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import chalk from 'chalk';
 
 // 获取 __dirname (仅用于迁移)
 const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__filename),

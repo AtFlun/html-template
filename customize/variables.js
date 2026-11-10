@@ -1,5 +1,9 @@
-// customize/variables.js
-export default {
+/**
+ * 自定义模板变量实例集合
+ * >查看定义:@see {@link customVariables}
+ * @returns {object} 含 variables 字段的配置对象
+ */
+const customVariables = {
     variables: {
         // ============= 基础信息变量 ============
         year: new Date().getFullYear(),
@@ -68,3 +72,5 @@ export default {
         emptyObject: {} // 空对象
     }
 };
+
+export default customVariables;

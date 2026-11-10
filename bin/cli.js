@@ -1,7 +1,7 @@
 #!/usr/bin/env node
+import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
-import chalk from 'chalk';
 import { compile, initProject, startDevServer } from '../index.js';
 
 const [, , sub, ...args] = process.argv, cwd = process.env.INIT_CWD || process.cwd(),

@@ -1,12 +1,16 @@
 /**
- * @description 公共中间件(如 CORS 设置等)
- * @type {import('express').RequestHandler<
- *   import('express-serve-static-core').ParamsDictionary,
- *   unknown,   // 响应体类型
- *   unknown,   // 请求体类型
- *   import('qs').ParsedQs,
- *   Record<string, unknown>  // locals 类型
- * >}
+ * Express 的 trust proxy 配置值
+ * >查看定义:@see {@link trustProxySetting}
+ * @type {boolean}
+ */
+const trustProxySetting = false;
+/**
+ * CORS 与安全响应头中间件
+ * >查看定义:@see {@link corsMiddleware}
+ * @param {object} req Express 请求对象
+ * @param {object} res Express 响应对象
+ * @param {function} next 下一个中间件
+ * @returns {void}
  */
 const corsMiddleware = (req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -23,7 +27,4 @@ const corsMiddleware = (req, res, next) => {
     next();
 };
 
-/** @type {boolean} */
-const trustProxySetting = false;
-
-export { corsMiddleware, trustProxySetting };
+export { trustProxySetting, corsMiddleware };

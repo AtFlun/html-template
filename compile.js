@@ -85,7 +85,7 @@ const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__fi
 			type: 'module', main: 'server.js',
 			scripts: { dev: 'node server.js' },
 			dependencies: mergedDeps,
-			overrides: { 'fast-xml-parser': '^5.11.2' },
+			overrides: { 'fast-xml-parser': '^5.12.0' },
 			allowScripts: {
 				"node": true, "bcrypt": true, "electron-winstaller": true,
 				"@flun/desktop-builder": true, "@flun/webauthn-server": true,
