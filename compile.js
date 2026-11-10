@@ -9,27 +9,26 @@
  *    - 依赖管理(mergeDependencies → 返回完整 package.json)
  * 3. 编译模板所有文件(compile)
  * 4. 批量编译主流程(compileAllTemplates)
- * 5. 导出接口与执行编译
+ * 5. 执行编译与导出
  *
  * 核心改进:
  * - 复用 parseServerConfig 读取开发阶段配置(端口、HTTPS、证书、主机名)
  * - 生成的 server.js 严格沿用这些配置,不擅自改变默认行为
  * - 若启用 HTTPS 则自动复制证书文件到输出目录/certs
  */
-import {
-	path, fsPromises, CWD, getAvailableTemplates, parseServerConfig, validateTemplateFile, renderTemplate, processIncludes,
-	processVariables, setCompilationMode, getIncludedFiles, loadUserFeatures, findEntryFile,
-	templatesDir, staticDir, customizeDir
-} from './services/templateService.js';
-import PK from './package.json' with { type: 'json' };
-import util from 'util';
 import { exec } from 'child_process';
+import util from 'util';
 import { fileURLToPath, pathToFileURL } from 'url';
+import PK from './package.json' with { type: 'json' };
+import {
+	fsPromises, path, CWD, customizeDir, staticDir, templatesDir, findEntryFile, getAvailableTemplates, getIncludedFiles,
+	loadUserFeatures, parseServerConfig, processIncludes, processVariables, renderTemplate, setCompilationMode,
+	validateTemplateFile
+} from './services/templateService.js';
 
 let cachedPages = [];
 const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__filename),
 	execPromise = util.promisify(exec),
-
 	// ==================== 1. 递归目录复制工具 ====================
 	copyDir = async (src, destDir) => {
 		try {
@@ -44,7 +43,6 @@ const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__fi
 			if (error.code !== 'ENOENT') console.error(`❌ 复制目录出错: ${src} -> ${destDir}`, error.message);
 		}
 	},
-
 	// ==================== 2. 路由文件处理及入口文件生成 ====================
 	checkUserRoutesExist = async () => {
 		try {
@@ -64,7 +62,6 @@ const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__fi
 			return false;
 		}
 	},
-
 	mergeDependencies = async (hasUserRoutes) => {
 		let basePkg = {}, userDeps = {}, mergedDeps = {};
 		const userPkgPath = path.join(CWD, 'package.json');
@@ -87,14 +84,12 @@ const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__fi
 			dependencies: mergedDeps,
 			overrides: { 'fast-xml-parser': '^5.12.0' },
 			allowScripts: {
-				"node": true, "bcrypt": true, "electron-winstaller": true,
-				"@flun/desktop-builder": true, "@flun/webauthn-server": true,
-				"@flun/env": true, "@flun/mailer": true
+				"node": true, "bcrypt": true, "@flun/desktop-builder": true, "@flun/env": true, "@flun/mailer": true,
+				"@flun/webauthn-server": true,
 			}
 		};
 		return JSON.stringify(finalPkg, null, 2);
 	},
-
 	installDependencies = async (targetDir) => {
 		console.log('📦 正在安装项目依赖,请稍候...');
 		try {
@@ -106,7 +101,6 @@ const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__fi
 			console.error('❌ 依赖安装失败:', error.message), console.log('💡 请手动进入目标目录执行 npm install');
 		}
 	},
-
 	/**
 	 * 生成服务端入口文件内容(ESM 格式),沿用开发配置
 	 * @param {boolean} hasUserRoutes - 是否存在用户自定义路由
@@ -235,7 +229,6 @@ const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__fi
 			    console.log('📁 当前仅提供静态文件服务(未检测到用户路由)'),console.log('按 Ctrl+C 停止服务器');
 			});`;
 	},
-
 	// ==================== 3. 编译模板文件 ====================
 	compile = async (cachedPages, outputDir) => {
 		for (const templateFile of cachedPages) {
@@ -254,10 +247,10 @@ const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__fi
 			}
 		}
 	};
-
 // ==================== 4. 批量编译主流程 ====================
 /**
  * 全量模板编译与打包,沿用开发阶段配置(端口、HTTPS、证书、主机名)
+ * >查看定义:@see {@link compileAllTemplates}
  * @param {string|Object} [options] - 配置项,可以是字符串(输出目录)或对象(支持 outputDir 字段)
  * @param {string} [options.outputDir='dist'] - 自定义打包输出目录
  */
@@ -335,11 +328,6 @@ const compileAllTemplates = async (options = {}) => {
 		setCompilationMode(false);
 	}
 };
-
-// ==================== 5. 导出接口与执行编译 ====================
+// ==================== 5. 执行编译与导出 ====================
+if (process.argv[1] === __filename) compileAllTemplates(process.argv[2]);
 export { compileAllTemplates };
-
-if (process.argv[1] === __filename) {
-	const customDir = process.argv[2];
-	compileAllTemplates(customDir);
-}

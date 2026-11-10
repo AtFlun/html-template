@@ -8,29 +8,27 @@
  * 4. 服务器生命周期管理(printAvailablePages, startServer)
  * 5. 请求页面路由处理(自动路由与模板渲染) -- 已在 startServer 内部动态添加
  * 6. 热重载功能实现(文件监听、事件处理、服务器重启) -- setupHotReload, restartServer
- * 7. 导出接口与启动执行(module.exports, startServer)
+ * 7. 启动执行与导出(startServer)
  */
-
 // ==================== 1.依赖导入与服务器初始化 ====================
+import chokidar from 'chokidar';
 import express from 'express';
 import { constants, existsSync, readFileSync } from 'fs';
 import http from 'http';
 import https from 'https';
 import { Server as socketIo } from 'socket.io';
-import chokidar from 'chokidar';
-import { fileURLToPath, pathToFileURL } from 'url';
-import {
-	path, fsPromises, CWD, getAvailableTemplates, parseServerConfig, generateUrls, findEntryFile, validateTemplateFile,
-	renderTemplate, processIncludes, processVariables, loadUserFeatures, writtenFilesToIgnore, templatesAbsDir, templatesDir,
-	staticDir, customizeDir, accountDir, monitorFileWrites
-} from './services/templateService.js';
-import { corsMiddleware, trustProxySetting } from './services/middleware.js';
+import { fileURLToPath } from 'url';
 import { injectScript } from './customize/hotReloadInjector.js';
+import { corsMiddleware, trustProxySetting } from './services/middleware.js';
+import {
+	fsPromises, path, CWD, accountDir, customizeDir, staticDir, templatesAbsDir, templatesDir, writtenFilesToIgnore,
+	findEntryFile, generateUrls, getAvailableTemplates, loadUserFeatures, monitorFileWrites, parseServerConfig,
+	processIncludes, processVariables, renderTemplate, validateTemplateFile
+} from './services/templateService.js';
 
 let server, io, watcher, cachedPages = [], unmountMonitor = null, currentHttpsConfig = null, currentHost = 'localhost';
-const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__filename),
-	app = express(), staticAbsDir = path.join(CWD, staticDir), customizeAbsDir = path.join(CWD, customizeDir),
-
+const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__filename), app = express(),
+	staticAbsDir = path.join(CWD, staticDir), customizeAbsDir = path.join(CWD, customizeDir),
 	// ==================== 2.工具函数 ====================
 	/**
 	 * 创建带WebSocket的服务器(支持HTTP/HTTPS)
@@ -64,7 +62,6 @@ const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__fi
 		}
 		return server;
 	},
-
 	/**
 	 * 清理资源
 	 */
@@ -73,7 +70,6 @@ const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__fi
 		if (io) io.close(), io = null;
 		if (unmountMonitor) unmountMonitor(); unmountMonitor = null;
 	},
-
 	/**
 	 * 递归复制目录
 	 */
@@ -86,7 +82,6 @@ const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__fi
 			else await fsPromises.copyFile(srcPath, destPath);
 		}
 	},
-
 	/**
 	* 根据启用状态同步 account 相关文件(统一备份目录)
 	* - 启用时:若主目录已有文件则保留,否则从备份恢复或复制默认
@@ -180,13 +175,10 @@ const __filename = fileURLToPath(import.meta.url), __dirname = path.dirname(__fi
 			} catch (_) { /* 目录不存在,无需备份 */ }
 		}
 	};
-
-
 // ==================== 3.全局CORS中间件和静态资源配置 ====================
 app.use(corsMiddleware);
 app.set('trust proxy', trustProxySetting);
 app.use('/static', express.static(staticAbsDir));
-
 // ==================== 4.服务器生命周期管理 ====================
 /**
  * 控制台输出可访问页面信息
@@ -214,7 +206,6 @@ const printAvailablePages = (pages, port, hotReload, useHttps, host) => {
 	});
 	console.log(`\n共发现 ${pages.length} 个可用模板`), console.log('-----------------------------------');
 };
-
 /**
  * 服务器启动主函数
  * >查看定义:@see {@link startServer}
@@ -283,7 +274,6 @@ const startServer = async (options = {}, defaults = {}) => {
 		console.error('服务器启动失败:', error.message), process.exit(1);
 	}
 },
-
 	// ==================== 6.热重载功能实现 ====================
 	/**
 	 * 设置文件监听和热重载功能
@@ -320,7 +310,6 @@ const startServer = async (options = {}, defaults = {}) => {
 			.on('unlink', (filePath) => handleFileEvent('删除', filePath))
 			.on('error', (error) => console.error('[热重载] 文件监听错误:', error));
 	},
-
 	/**
 	 * 重启服务器(保持HTTPS和主机名配置)
 	 */
@@ -341,8 +330,7 @@ const startServer = async (options = {}, defaults = {}) => {
 			console.error('[热重载] 重启过程中发生错误:', error);
 		}
 	};
-
-// ==================== 7.导出接口与启动执行 ====================
-export { startServer };
+// ==================== 7.启动执行和导出 ====================
 if (process.argv[1] === __filename)
 	startServer().catch(error => (console.error('服务器启动失败:', error), process.exit(1)));
+export { startServer };

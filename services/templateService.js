@@ -1044,11 +1044,9 @@ const renderTemplate = async templateFile => {
 	const baseContent = await fsPromises.readFile(basePath, 'utf8');
 	return _renderTemplateContent(baseContent, remainingContent); // 执行模板合成
 }
-
 // ==================== 9. 模块功能导出 ====================
 export {
-	path, CWD, fsPromises, templatesDir, templatesAbsDir, staticDir, customizeDir, accountDir, writtenFilesToIgnore,
-	parseServerConfig, generateUrls, findEntryFile, setCompilationMode, getIncludedFiles, processIncludes,
-	monitorFileWrites, loadUserFeatures, processVariables, getAvailableTemplates, validateTemplateFile,
-	renderTemplate
+	fsPromises, path, CWD, accountDir, customizeDir, staticDir, templatesAbsDir, templatesDir, writtenFilesToIgnore,
+	findEntryFile, generateUrls, getAvailableTemplates, getIncludedFiles, loadUserFeatures, monitorFileWrites,
+	parseServerConfig, processIncludes, processVariables, renderTemplate, setCompilationMode, validateTemplateFile
 };
