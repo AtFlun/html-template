@@ -1,8 +1,8 @@
 /* 基于 @simplewebauthn/browser 修改,前端自动检测操作系统,Windows 下启用原生模拟 */
 !function (e, t) {
     "object" == typeof exports && "undefined" != typeof module ? t(exports) : "function" == typeof define && define.amd
-        ? define(["exports"], t) : t((e = "undefined" != typeof globalThis ? globalThis :
-            e || self).flunWebAuthnBrowser = {})
+        ? define(["exports"], t) : t((e = "undefined" != typeof globalThis ? globalThis : e || self)
+            .flunWebAuthnBrowser = {})
 }(this, e => {
     "use strict";
     const defaultPropDescriptor = { enumerable: true, configurable: true, writable: true, value: void 0 },
@@ -92,7 +92,7 @@
     };
 
     // 导出
-    // 1. 内部工具(高级用户使用)
+    // 1. 内部工具（高级用户使用）
     e.WebAuthnAbortService = WebAuthnAbortService;
     e._browserSupportsWebAuthnAutofillInternals = p;
     e._browserSupportsWebAuthnInternals = o;
@@ -103,12 +103,12 @@
     e.browserSupportsWebAuthn = browserSupportsWebAuthn;
     e.browserSupportsWebAuthnAutofill = browserSupportsWebAuthnAutofill;
     e.platformAuthenticatorIsAvailable = () => {
-        return browserSupportsWebAuthn() ? PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable() :
-            falsePromise;
+        return browserSupportsWebAuthn()
+            ? PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable() : falsePromise;
     };
     // 4. 错误类
     e.WebAuthnError = WebAuthnError;
-    // 5. 核心方法(注册和认证)
+    // 5. 核心方法（注册和认证）
     e.startRegistration = async e => {
         const normalized = normalizeOptions(e);
         if (!normalized) throw new Error('startRegistration 需要传入包含 optionsJSON 或 challenge 的对象');
@@ -175,9 +175,9 @@
                     if ("NotSupportedError" === e.name) {
                         if (0 === r.pubKeyCredParams.filter((e => "public-key" === e.type)).length)
                             return new WebAuthnError({
-                            message: 'pubKeyCredParams 中没有 type 为 "public-key" 的条目',
-                            code: "ERROR_MALFORMED_PUBKEYCREDPARAMS", cause: e
-                        });
+                                message: 'pubKeyCredParams 中没有 type 为 "public-key" 的条目',
+                                code: "ERROR_MALFORMED_PUBKEYCREDPARAMS", cause: e
+                            });
                         return new WebAuthnError({
                             message: "没有可用的验证器支持指定的任何 pubKeyCredParams 算法",
                             code: "ERROR_AUTHENTICATOR_NO_SUPPORTED_PUBKEYCREDPARAMS_ALG", cause: e
