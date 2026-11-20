@@ -64,8 +64,13 @@ const readUsers = () => {
             users.push(adminUser), writeUsers(users);
         }
     },
-    sendEmail = async ({ from = `"我的网站" <${env.MAIL_USER}>`, to, subject, html, }) => {
-        await transporter.sendMail({ from, to, subject, html });
+    sendEmail = async ({ from = `"我的网站" <${env.MAIL_USER}>`, to, subject, html }) => {
+        try {
+            return await transporter.sendMail({ from, to, subject, html });
+        } catch (error) {
+            console.error('发送失败:', error);
+            return null;
+        }
     },
     validateEmail = email => mailRegex.test(email), generateToken = () => randomBytes(32).toString('hex'),
     hasAllFields = (body, fields) => fields.every(f => body[f]),
