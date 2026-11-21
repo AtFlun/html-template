@@ -42,15 +42,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OpenFlun/html-template.git"
+    "url": "git+https://github.com/AtFlun/html-template.git"
   },
   "gitee": {
     "type": "git",
-    "url": "https://gitee.com/OpenFlun/html-template.git"
+    "url": "https://gitee.com/AtFlun/html-template.git"
   },
-  "homepage": "https://github.com/OpenFlun/html-template#readme",
+  "homepage": "https://github.com/AtFlun/html-template#readme",
   "bugs": {
-    "url": "https://github.com/OpenFlun/html-template/issues"
+    "url": "https://github.com/AtFlun/html-template/issues"
   },
   "license": "ISC",
   "engines": {
